@@ -66,5 +66,6 @@ data = Page.new(source).as_data[:results].map do |r|
   end
 end.flatten
 
+warn data
 ScraperWiki.save_sqlite([:name, :area], data)
 
