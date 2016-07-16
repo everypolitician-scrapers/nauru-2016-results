@@ -52,10 +52,10 @@ class Page
 
   def parse_winners(str)
     winner_rx = /(\w+ \w+) (\d+\.\d+)/
-    str.scan(winner_rx).map { |name, votes| { name: name, votes: votes.gsub('.','') } }
+    str.split(/(?:, | and )/).map { |s|
+      s.reverse.split(/\s+/,2).reverse.map(&:reverse)
+    }.map { |name, votes| { name: name, votes: votes.gsub('.','') } }
   end
-
-
 
 end
 
