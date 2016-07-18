@@ -16,9 +16,9 @@ class String
   end
 end
 
-class NauruGov
+class Polidata
 
-  class ElectionResults
+  class Page
 
     def initialize(url)
       @url = url
@@ -27,6 +27,20 @@ class NauruGov
     def as_data
       @md ||= Hash[ protected_methods.map { |m| [m, send(m)] } ]
     end
+
+    private
+
+    def noko
+      @noko ||= Nokogiri::HTML(open(@url).read)
+    end
+
+  end
+
+end
+
+class NauruGov
+
+  class ElectionResults < Polidata::Page
 
     protected
 
@@ -42,10 +56,6 @@ class NauruGov
 
 
     private
-
-    def noko
-      @noko ||= Nokogiri::HTML(open(@url).read)
-    end
 
     def results_box
       # I can't get the regexp right here to split on \n\s+\n, so this
