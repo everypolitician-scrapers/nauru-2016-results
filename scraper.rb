@@ -1,5 +1,6 @@
 #!/bin/env ruby
 # encoding: utf-8
+# frozen_string_literal: true
 
 require 'nokogiri'
 require 'open-uri'
@@ -11,20 +12,18 @@ OpenURI::Cache.cache_path = '.cache'
 
 class String
   def tidy
-    self.gsub(/[[:space:]]+/, ' ').strip
+    gsub(/[[:space:]]+/, ' ').strip
   end
 end
 
 class Polidata
-
   class Page
-
     def initialize(url)
       @url = url
     end
 
     def as_data
-      @md ||= Hash[ protected_methods.map { |m| [m, send(m)] } ]
+      @md ||= Hash[protected_methods.map { |m| [m, send(m)] }]
     end
 
     private
@@ -32,27 +31,22 @@ class Polidata
     def noko
       @noko ||= Nokogiri::HTML(open(@url).read)
     end
-
   end
-
 end
 
 class NauruGov
-
   class ElectionResults < Polidata::Page
-
     protected
 
     def results
-      triples = results_box[results_box.find_index('Yaren') .. -2]
+      triples = results_box[results_box.find_index('Yaren')..-2]
       triples.each_slice(3).map do |area, winners, _|
         {
-          area: area,
+          area:    area,
           winners: parse_winners(winners),
         }
       end
     end
-
 
     private
 
@@ -63,11 +57,10 @@ class NauruGov
     end
 
     def parse_winners(str)
-      str.split(/(?:, | and )/).map { |s|
-        s.reverse.split(/\s+/,2).reverse.map(&:reverse)
-      }.map { |name, votes| { name: name, votes: votes.sub(/\.$/,'') } }
+      str.split(/(?:, | and )/).map do |s|
+        s.reverse.split(/\s+/, 2).reverse.map(&:reverse)
+      end.map { |name, votes| { name: name, votes: votes.sub(/\.$/, '') } }
     end
-
   end
 end
 
@@ -79,5 +72,4 @@ data = NauruGov::ElectionResults.new(source).as_data[:results].map do |r|
 end.flatten
 
 warn data
-ScraperWiki.save_sqlite([:name, :area], data)
-
+ScraperWiki.save_sqlite(%i(name area), data)
